@@ -1,0 +1,178 @@
+Sistema para empresa minera
+
+Sistema web tipo dashboard para una empresa minera, con registro de asistencia, planilla, pensión, cuentas y reportes.
+
+1) Usuarios y permisos
+
+Debe haber 3 tipos de usuario:
+
+Admin: puede registrar socios, el/la pensionista y gestionar permisos.
+Socio 1: Máximo Muñoz
+Socio 2: Luis Polo
+Pensionista: usuario encargado de la pensión
+
+Permisos:
+
+Cada socio puede ver su propio módulo de Sacar Cuentas y también ver el del otro socio, pero no editarlo ni agregar datos.
+El usuario pensionista puede acceder a Pensión, Planilla y Sacar cuentas - Pensión.
+El admin es el único que puede ver y administrar Permisos y borrar datos antiguos.
+2) Planilla
+
+Debe existir un módulo de planilla para cada trabajador.
+
+Reglas:
+
+Los trabajadores van a trabajar de lunes a sábado.
+Domingo no trabajan.
+Cada trabajador tiene su propia planilla con una tabla similar a la de pensión.
+La tabla debe tener:
+Fecha
+Asistencia: verde = sí, rojo = no
+Detalle opcional por día
+No se puede marcar en rojo o verde un día que todavía no ha llegado.
+Si falta un trabajador, se registra como falta con su motivo.
+Si tiene permiso, se registra como permiso con su motivo.
+La falta y el permiso deben tener colores distintos.
+El trabajador debe poder ver el detalle completo de su pago: días trabajados, faltas, permisos y adelantos.
+3) Pensión
+
+La pensión corresponde a desayuno, almuerzo y cena.
+
+Reglas:
+
+Se paga por día, aunque el trabajador no coma.
+El costo actual es S/ 28 por día.
+Se registra día a día en una tabla con:
+Fecha
+Asistencia (verde/rojo)
+Detalle
+También deben aparecer los días futuros bloqueados para edición.
+El cobro es mensual, por lo que debe existir un historial por mes y también la posibilidad de ver el mes anterior y el mes actual.
+La pensión debe poder verse por los socios y por el usuario pensionista.
+4) Planilla por descarga de carga
+
+La planilla no es mensual. Se paga cuando se completa aproximadamente 50 toneladas.
+
+Reglas:
+
+Debe poder registrarse la fecha de descarga / actualización de carga.
+Desde esa fecha hasta la siguiente descarga se calcula el sueldo de cada trabajador.
+El pago debe considerar:
+días trabajados
+faltas (no se paga ese día)
+permisos (sí se paga)
+adelantos
+El sistema debe mostrar de forma clara cuándo hay que pagar y cuánto, incluyendo los gastos o faltas que afectan el total.
+5) Sacar Cuentas
+
+Debe existir un módulo de Sacar Cuentas para cada socio, dividido en 4 partes:
+
+5.1 Inversión
+Registrar inversión
+Monto
+Fecha por defecto: hoy
+Debe mostrar el total acumulado
+5.2 Adelantos
+Registrar adelantos a trabajadores
+Monto
+Fecha por defecto: hoy
+5.3 Planilla
+Mostrar cuánto se le paga a cada trabajador
+Mostrar total general
+Considerar faltas y permisos
+5.4 Molienda
+Registrar gasto de molienda
+Nombre
+Monto
+Fecha por defecto: hoy
+Debe mostrar la suma total
+6) Cuenta Final
+
+Debe existir un apartado llamado Cuenta Final.
+
+Debe mostrar:
+
+El resumen final de las cuentas de cada socio
+La suma total gastada por uno
+La suma total gastada por el otro
+El total general de ambos
+
+Además:
+
+Debe permitir registrar el dinero ganado después de la molienda
+Con eso debe hacer la resta entre:
+total de gastos
+ingresos
+Y mostrar la ganancia neta
+Todo esto debe guardarse
+7) Sacar cuentas - Pensión
+
+Debe existir un módulo especial llamado Sacar cuentas - Pensión.
+
+Debe mostrar:
+
+Todos los detalles de las cuentas de pensión de cada trabajador
+Total mensual a cobrar
+O el total acumulado hasta la última fecha cobrada
+
+Este módulo debe ser visible también para los socios.
+
+8) Historial
+
+Debe existir un apartado Historial que registre todo lo que pasó en el sistema.
+
+Cada registro debe mostrar:
+
+qué se hizo
+cuándo se hizo
+fecha y hora
+quién lo hizo
+
+Además debe tener:
+
+orden del más reciente al más antiguo
+buscador por nombre y acción
+filtro por fecha, semana o mes
+9) Descarga de reportes
+
+Toda la información importante debe poder descargarse en:
+
+PDF
+Excel
+
+Esto aplica para:
+
+planilla
+pensión
+cuentas
+detalles completos
+
+Debe existir un selector de periodo, por ejemplo “Seleccionar periodo”, para descargar por fecha o rango de fechas.
+
+10) Borrado de datos antiguos
+
+Debe haber una opción para borrar datos pasados.
+
+Reglas:
+
+El admin puede seleccionar un periodo
+Al borrar, elimina datos de la base de datos
+Esto sirve para ahorrar espacio y usar mejor el plan gratuito de Supabase
+11) Interfaz
+
+El sistema debe ser tipo dashboard con un sidebar que incluya:
+
+Planilla
+Pensión
+Cuentas - Pensión
+Sacar Cuentas - Máximo (dividido en sus 4 partes)
+Sacar Cuentas - Luis (dividido en sus 4 partes)
+Cuenta Final
+Permisos (solo admin)
+12) Reglas importantes generales
+Todo debe quedar bien organizado y fácil de revisar.
+No se pueden editar días futuros.
+Debe haber control por rol y permisos.
+Todo debe quedar guardado.
+Debe mostrarse bonito y claro cuándo toca pagar.
+El sistema debe permitir revisar con detalle si un pago está correcto.
