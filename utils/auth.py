@@ -59,6 +59,31 @@ def create_user(username, nombre_completo, password, rol):
         )
     return result
 
+
+def update_user_basic(user_id, username, nombre_completo, rol):
+    try:
+        execute_insert(
+            """
+            UPDATE usuarios
+            SET username = %s,
+                nombre_completo = %s,
+                rol = %s
+            WHERE id = %s
+            """,
+            (username, nombre_completo, rol, user_id),
+            fetch=False,
+        )
+
+        registrar_accion(
+            st.session_state.get("user", {}).get("id"),
+            st.session_state.get("user", {}).get("nombre_completo", "Admin"),
+            f"Actualizó usuario id={user_id} (@{username}) con rol '{rol}'",
+            "permisos",
+        )
+        return True
+    except Exception:
+        return False
+
 def update_user_password(user_id, new_password):
     ph = hash_password(new_password)
     execute_insert(

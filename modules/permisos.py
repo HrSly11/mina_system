@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import date
 from utils.db import execute_query, execute_insert
 from utils.auth import (create_user, get_all_users, toggle_user_active,
-                         update_user_password, get_current_user)
+                         update_user_password, get_current_user, update_user_basic)
 from utils.historial import registrar_accion
 
 # ─── Trabajadores ────────────────────────────────────────────────────────────
@@ -122,20 +122,84 @@ def render():
                             toggle_user_active(u["id"], not u["activo"])
                             st.rerun()
 
-        st.markdown("---")
-        st.subheader("Cambiar Contraseña")
-        usuarios_list = [dict(u) for u in (usuarios or [])]
-        if usuarios_list:
-            usr_names = [u["nombre_completo"] for u in usuarios_list]
-            usr_sel = st.selectbox("Selecciona usuario", usr_names, key="chgpass_usr")
-            usr_obj = next(u for u in usuarios_list if u["nombre_completo"] == usr_sel)
-            new_pass = st.text_input("Nueva contraseña", type="password", key="chgpass_new")
-            if st.button("Cambiar Contraseña", key="chgpass_btn"):
-                if new_pass:
-                    update_user_password(usr_obj["id"], new_pass)
-                    st.success("Contraseña actualizada")
-                else:
-                    st.warning("Ingresa la nueva contraseña")
+            st.markdown("### ✏️ Editar Usuarios y Contraseñas")
+            for u in usuarios:
+                u = dict(u)
+
+                titulo = f"Editar: {u['nombre_completo']} (@{u['username']})"
+                with st.expander(titulo):
+                    with st.form(f"usr_edit_form_{u['id']}"):
+                        puede_editar_basico = u.get("rol") in ("socio", "pensionista") and u.get("username") != "admin"
+
+                        if puede_editar_basico:
+                            col_e1, col_e2 = st.columns(2)
+                            with col_e1:
+                                usr_edit_username = st.text_input(
+                                    "Username",
+                                    value=u["username"],
+                                    key=f"usr_edit_username_{u['id']}",
+                                )
+                                usr_edit_nombre = st.text_input(
+                                    "Nombre completo",
+                                    value=u["nombre_completo"],
+                                    key=f"usr_edit_nombre_{u['id']}",
+                                )
+                            with col_e2:
+                                rol_default = "socio" if u["rol"] == "socio" else "pensionista"
+                                usr_edit_rol = st.selectbox(
+                                    "Rol",
+                                    ["socio", "pensionista"],
+                                    index=0 if rol_default == "socio" else 1,
+                                    key=f"usr_edit_rol_{u['id']}",
+                                )
+                        else:
+                            st.info("Para este usuario solo se permite cambiar contraseña.")
+
+                        st.caption("Cambio de contraseña (opcional)")
+                        col_p1, col_p2 = st.columns(2)
+                        with col_p1:
+                            usr_edit_pass = st.text_input(
+                                "Nueva contraseña",
+                                type="password",
+                                key=f"usr_edit_pass_{u['id']}",
+                            )
+                        with col_p2:
+                            usr_edit_pass2 = st.text_input(
+                                "Confirmar nueva contraseña",
+                                type="password",
+                                key=f"usr_edit_pass2_{u['id']}",
+                            )
+
+                        submit_edit_usr = st.form_submit_button("💾 Guardar cambios")
+
+                    if submit_edit_usr:
+                        if (usr_edit_pass or usr_edit_pass2) and usr_edit_pass != usr_edit_pass2:
+                            st.error("Las contraseñas no coinciden")
+                        else:
+                            ok = True
+                            if puede_editar_basico:
+                                if not usr_edit_username.strip() or not usr_edit_nombre.strip():
+                                    st.warning("Username y nombre son obligatorios")
+                                    ok = False
+                                else:
+                                    ok = update_user_basic(
+                                        u["id"],
+                                        usr_edit_username.strip(),
+                                        usr_edit_nombre.strip(),
+                                        usr_edit_rol,
+                                    )
+
+                            if ok:
+                                if usr_edit_pass:
+                                    update_user_password(u["id"], usr_edit_pass)
+                                    st.success("Contraseña actualizada")
+                                elif puede_editar_basico:
+                                    st.success("Usuario actualizado")
+                                else:
+                                    st.info("No hubo cambios para guardar")
+                                st.rerun()
+                            else:
+                                st.error("No se pudo actualizar. Verifica si el username ya existe.")
 
     # ── Tab Trabajadores ──────────────────────────────────────────────────
     with tab2:
