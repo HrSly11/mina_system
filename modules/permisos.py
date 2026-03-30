@@ -11,13 +11,13 @@ from utils.historial import registrar_accion
 def get_trabajadores():
     return execute_query("SELECT * FROM trabajadores ORDER BY nombre_completo")
 
-def create_trabajador(nombre, dni, cargo, sueldo, fecha_inicio_planilla, fecha_fin_planilla, fecha_inicio_pension, fecha_fin_pension):
+def create_trabajador(nombre, dni, cargo, sueldo):
     user = get_current_user()
     execute_insert(
         """INSERT INTO trabajadores
-                            (nombre_completo, dni, cargo, sueldo_base, fecha_inicio_planilla, fecha_fin_planilla, fecha_inicio_pension, fecha_fin_pension)
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
-                    (nombre, dni, cargo, sueldo, fecha_inicio_planilla, fecha_fin_planilla, fecha_inicio_pension, fecha_fin_pension)
+                            (nombre_completo, dni, cargo, sueldo_base)
+                            VALUES (%s,%s,%s,%s)""",
+                    (nombre, dni, cargo, sueldo)
     )
     registrar_accion(user.get("id"), user.get("nombre_completo"),
                      f"Creó trabajador '{nombre}'", "permisos")
@@ -214,24 +214,14 @@ def render():
                 with col2:
                     t_cargo = st.text_input("Cargo", value="Operario", key="trab_cargo")
                     t_sueldo = st.number_input("Sueldo por día (S/)", min_value=0.0, step=0.01, key="trab_sueldo")
-                col3, col4 = st.columns(2)
-                with col3:
-                    t_fi_plan = st.date_input("Inicio planilla", value=date.today(), key="trab_fi_plan")
-                with col4:
-                    t_ff_plan_enabled = st.checkbox("Tiene fecha fin de planilla", key="trab_ff_plan_enabled")
-                    t_ff_plan = st.date_input("Fin planilla", value=date.today(), key="trab_ff_plan") if t_ff_plan_enabled else None
-                col5, col6 = st.columns(2)
-                with col5:
-                    t_fi_pen = st.date_input("Inicio pensión", value=date.today(), key="trab_fi_pen")
-                with col6:
-                    t_ff_pen_enabled = st.checkbox("Tiene fecha fin de pensión", key="trab_ff_pen_enabled")
-                    t_ff_pen = st.date_input("Fin pensión", value=date.today(), key="trab_ff_pen") if t_ff_pen_enabled else None
+
+                st.caption("Las fechas de planilla/pensión se configuran después en la edición del trabajador.")
 
                 submit_trab = st.form_submit_button("💾 Agregar")
 
             if submit_trab:
                 if t_nombre:
-                    create_trabajador(t_nombre, t_dni, t_cargo, t_sueldo, t_fi_plan, t_ff_plan, t_fi_pen, t_ff_pen)
+                    create_trabajador(t_nombre, t_dni, t_cargo, t_sueldo)
                     st.success(f"Trabajador '{t_nombre}' agregado")
                     st.rerun()
                 else:
