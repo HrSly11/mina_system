@@ -80,16 +80,19 @@ def render():
         st.subheader("Gestión de Usuarios")
 
         with st.expander("➕ Crear Nuevo Usuario"):
-            col1, col2 = st.columns(2)
-            with col1:
-                username = st.text_input("Username", key="usr_username")
-                nombre = st.text_input("Nombre Completo", key="usr_nombre")
-            with col2:
-                rol = st.selectbox("Rol", ["socio", "pensionista", "admin"], key="usr_rol")
-                password = st.text_input("Contraseña", type="password", key="usr_pass")
-                password2 = st.text_input("Confirmar contraseña", type="password", key="usr_pass2")
+            with st.form("usr_create_form", clear_on_submit=True):
+                col1, col2 = st.columns(2)
+                with col1:
+                    username = st.text_input("Username", key="usr_username")
+                    nombre = st.text_input("Nombre Completo", key="usr_nombre")
+                with col2:
+                    rol = st.selectbox("Rol", ["socio", "pensionista", "admin"], key="usr_rol")
+                    password = st.text_input("Contraseña", type="password", key="usr_pass")
+                    password2 = st.text_input("Confirmar contraseña", type="password", key="usr_pass2")
 
-            if st.button("💾 Crear Usuario", key="usr_btn"):
+                submit_usr = st.form_submit_button("💾 Crear Usuario")
+
+            if submit_usr:
                 if not username or not nombre or not password:
                     st.error("Completa todos los campos")
                 elif password != password2:
@@ -97,10 +100,6 @@ def render():
                 else:
                     result = create_user(username, nombre, password, rol)
                     if result:
-                        st.session_state["usr_username"] = ""
-                        st.session_state["usr_nombre"] = ""
-                        st.session_state["usr_pass"] = ""
-                        st.session_state["usr_pass2"] = ""
                         st.success(f"Usuario '{username}' creado con rol '{rol}'")
                         st.rerun()
                     else:
@@ -143,36 +142,32 @@ def render():
         st.subheader("Gestión de Trabajadores")
 
         with st.expander("➕ Agregar Trabajador"):
-            col1, col2 = st.columns(2)
-            with col1:
-                t_nombre = st.text_input("Nombre Completo", key="trab_nombre")
-                t_dni = st.text_input("DNI", key="trab_dni")
-            with col2:
-                t_cargo = st.text_input("Cargo", value="Operario", key="trab_cargo")
-                t_sueldo = st.number_input("Sueldo por día (S/)", min_value=0.0, step=0.01, key="trab_sueldo")
-            col3, col4 = st.columns(2)
-            with col3:
-                t_fi_plan = st.date_input("Inicio planilla", value=date.today(), key="trab_fi_plan")
-            with col4:
-                t_ff_plan_enabled = st.checkbox("Tiene fecha fin de planilla", key="trab_ff_plan_enabled")
-                t_ff_plan = st.date_input("Fin planilla", value=date.today(), key="trab_ff_plan") if t_ff_plan_enabled else None
-            col5, col6 = st.columns(2)
-            with col5:
-                t_fi_pen = st.date_input("Inicio pensión", value=date.today(), key="trab_fi_pen")
-            with col6:
-                t_ff_pen_enabled = st.checkbox("Tiene fecha fin de pensión", key="trab_ff_pen_enabled")
-                t_ff_pen = st.date_input("Fin pensión", value=date.today(), key="trab_ff_pen") if t_ff_pen_enabled else None
-            if st.button("💾 Agregar", key="trab_btn"):
+            with st.form("trab_create_form", clear_on_submit=True):
+                col1, col2 = st.columns(2)
+                with col1:
+                    t_nombre = st.text_input("Nombre Completo", key="trab_nombre")
+                    t_dni = st.text_input("DNI", key="trab_dni")
+                with col2:
+                    t_cargo = st.text_input("Cargo", value="Operario", key="trab_cargo")
+                    t_sueldo = st.number_input("Sueldo por día (S/)", min_value=0.0, step=0.01, key="trab_sueldo")
+                col3, col4 = st.columns(2)
+                with col3:
+                    t_fi_plan = st.date_input("Inicio planilla", value=date.today(), key="trab_fi_plan")
+                with col4:
+                    t_ff_plan_enabled = st.checkbox("Tiene fecha fin de planilla", key="trab_ff_plan_enabled")
+                    t_ff_plan = st.date_input("Fin planilla", value=date.today(), key="trab_ff_plan") if t_ff_plan_enabled else None
+                col5, col6 = st.columns(2)
+                with col5:
+                    t_fi_pen = st.date_input("Inicio pensión", value=date.today(), key="trab_fi_pen")
+                with col6:
+                    t_ff_pen_enabled = st.checkbox("Tiene fecha fin de pensión", key="trab_ff_pen_enabled")
+                    t_ff_pen = st.date_input("Fin pensión", value=date.today(), key="trab_ff_pen") if t_ff_pen_enabled else None
+
+                submit_trab = st.form_submit_button("💾 Agregar")
+
+            if submit_trab:
                 if t_nombre:
                     create_trabajador(t_nombre, t_dni, t_cargo, t_sueldo, t_fi_plan, t_ff_plan, t_fi_pen, t_ff_pen)
-                    st.session_state["trab_nombre"] = ""
-                    st.session_state["trab_dni"] = ""
-                    st.session_state["trab_cargo"] = "Operario"
-                    st.session_state["trab_sueldo"] = 0.0
-                    st.session_state["trab_fi_plan"] = date.today()
-                    st.session_state["trab_ff_plan_enabled"] = False
-                    st.session_state["trab_fi_pen"] = date.today()
-                    st.session_state["trab_ff_pen_enabled"] = False
                     st.success(f"Trabajador '{t_nombre}' agregado")
                     st.rerun()
                 else:
